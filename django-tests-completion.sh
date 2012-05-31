@@ -122,15 +122,15 @@ function parse_app_if_necessary(){
 _django_test_completion(){
 	local cur prev opts 
 	COMPREPLY=()
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
-    if [ "${prev}" != "test" ]; then
-    	return
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+	if [ "${prev}" != "test" ]; then
+		return
 	fi
 
-    get_apps
+	get_apps
 
-    # Split the test path into an array with '.' as delimiter
+	# Split the test path into an array with '.' as delimiter
 	test_path=(${cur//./ })
 
 	# Get the last character of the test path
@@ -158,7 +158,7 @@ _django_test_completion(){
 	fi
 
 	opts_apps="${apps[@]}"
-    COMPREPLY=($(compgen -W "${opts_apps}" -- ${cur}))
+	COMPREPLY=($(compgen -W "${opts_apps}" -- ${cur}))
 }
 
 complete -F _django_test_completion -o default python manage.py test
