@@ -1,20 +1,19 @@
 #/!bin/bash
 
+# Bash completion script for python manage.py test
+#
+# To install:
+#  - copy this script to ~/django-tests-completion.sh
+#  - add this to your .bashrc file: . ~/django-tests-completion.sh
+#
+# Author: Bogdan Licar
+
 # Global vars
 apps=()
 apps_paths=()
 test_cases=()
 test_methods=()
 last_parsed_app=""
-
-function add_test_methods(){		
-	if [ "${tests}" ]; then
-		# Save all the test methods for this test case into a joined string
-		# and add it to test_methods array
-		test_methods+=("${tests}")
-		tests=()
-	fi
-}
 
 function get_apps(){
 	# Fetch the list of all the apps in the project
@@ -32,8 +31,18 @@ function get_apps(){
 	fi
 }
 
+function add_test_methods(){
+	# Help function to save all the test methods for the current test case 
+	# into a joined string and add it to test_methods array	
+	if [ "${tests}" ]; then
+		test_methods+=("${tests}")
+		tests=()
+	fi
+}
+
+
 function parse_app_tests(){
-	# Take an app name as argument and builds the test cases and test methods paths for that app
+	# Takes an app name as argument and builds the test cases and test methods paths for the app
 	app_name=$@
 
 	# Find the path to the folder of the app
@@ -41,6 +50,7 @@ function parse_app_tests(){
 	
 	apps_paths=(${apps_paths[@]})
 
+	# Find the path to the app folder
 	OIFS=$IFS; IFS=$" "
 	for app_path in "${apps_paths[@]}"; do
 		app_path_arr=(${app_path//./ })
@@ -70,11 +80,12 @@ function parse_app_tests(){
 		done
 	fi
 
-	# Get all the classes and test methods 
+	# Grep for all the classes and test methods
 	OLDIFS=$IFS; IFS=$'\n'
 	grep_output=( $(grep -E -oh "^class .+:|def test.+:" ${app_test_files[@]}) )
 	IFS=$OLDIFS
 
+	# Parse the grep output and build two arrays to mimic associative arrays
 	for line in "${grep_output[@]}"; do
 		is_test_case=$(echo $line | grep -o '^class .\+:' | cut -d ' ' -f 2 | cut -d '(' -f 1)
 		if [ ${is_test_case} ]; then
@@ -84,6 +95,7 @@ function parse_app_tests(){
 				unset test_cases[${#test_cases[@]}-1]
 			fi
 
+			# Save the test case and the test methods we have so far
 			test_case=${is_test_case}
 			test_cases+=("${app_name}.${test_case}")
 			add_test_methods
