@@ -124,6 +124,10 @@ _django_test_completion(){
 	COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
+    if [ "${prev}" != "test" ]; then
+    	return
+	fi
+
     get_apps
 
     # Split the test path into an array with '.' as delimiter
